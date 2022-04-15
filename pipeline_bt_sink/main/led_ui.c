@@ -127,7 +127,7 @@ uint8_t red = 25, blue = 25, green = 25;//测试用，记得删
 const uint8_t week_pixel[3] = {23,24,39};
 uint8_t led_position[8][32] = {0};
 
-uint8_t yellow_pixel[32] = {7};
+uint8_t yellow_pixel[32] = {0};
 uint8_t fall_time[32] = {0};
 uint32_t dft_pixel_color[8][3] = {0};
 void led_strip_remap()
@@ -352,6 +352,7 @@ void frequency_spectrum_refresh(led_strip_t *strip, uint8_t *led_dft)
             {
                 ESP_ERROR_CHECK(strip->set_pixel(strip, led_position[7-j][i], 0, 0, 0));
             }
+        
             //设置顶部的黄点
             if(7-*(led_dft+i) <= yellow_pixel[i]) //如果当前高度比黄点高，那么把黄点顶上去
             {
@@ -367,8 +368,8 @@ void frequency_spectrum_refresh(led_strip_t *strip, uint8_t *led_dft)
                     fall_time[i] = 0;
                 }
             }
-            ESP_ERROR_CHECK(strip->set_pixel(strip, led_position[yellow_pixel[i]][i], 40, 40, 10));
         }
+        ESP_ERROR_CHECK(strip->set_pixel(strip, led_position[yellow_pixel[i]][i], 40, 40, 10));
     }
 }
 

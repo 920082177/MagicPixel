@@ -51,8 +51,8 @@
 #include "led_ui.h"
 #include "DFT.h"
 
-#define EXAMPLE_ESP_WIFI_SSID      "bzmc"
-#define EXAMPLE_ESP_WIFI_PASS      "02365833961"
+#define EXAMPLE_ESP_WIFI_SSID      "20192137"//"bzmc"           //20192137
+#define EXAMPLE_ESP_WIFI_PASS      "233122"//"02365833961"        //233122
 #define EXAMPLE_ESP_MAXIMUM_RETRY  1
 
 /* FreeRTOS event group to signal when we are connected*/
@@ -425,13 +425,13 @@ static void led_strip_task(void *parm)
         {
             if(is_audio > is_audio_old)//切换的过程
             {
-                vTaskSuspend(xHandle_tcp);
+                //vTaskSuspend(xHandle_tcp);
                 frequency_spectrum_refresh(strip, led_dft_num);
                 ESP_ERROR_CHECK(strip->refresh(strip, 100));
             }
             else if(is_audio < is_audio_old)
             {
-                vTaskResume(xHandle_tcp);
+                //vTaskResume(xHandle_tcp);
                 ESP_ERROR_CHECK(strip->clear(strip, 100));//全部清零
             }
             is_audio_old = is_audio;
@@ -646,7 +646,7 @@ void bt_mp3_task(void *parm)
 
     ESP_LOGI(TAG, "[ 1 ] Create Bluetooth service");
     bluetooth_service_cfg_t bt_cfg = {
-        .device_name = "Magic Pixel",
+        .device_name = "不喜欢秋天",
         .mode = BLUETOOTH_A2DP_SINK,
     };
     bluetooth_service_start(&bt_cfg);
@@ -877,12 +877,13 @@ static void wifi_init_sta(void)
         ESP_ERROR_CHECK(esp_wifi_init(&cfg));
         xTaskCreate(smartconfig_example_task, "smartconfig_example_task", 4096, NULL, 3, NULL);
         ESP_ERROR_CHECK( esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL) );
+        ESP_LOGI(TAG, "test -by car");
         bits = xEventGroupWaitBits(s_wifi_event_group,
-            WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
+            WIFI_CONNECTED_BIT ,
             pdFALSE,
             pdFALSE,
             portMAX_DELAY);
-
+        ESP_LOGI(TAG, "test2 -by car");
     } else {
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
     }
@@ -891,6 +892,10 @@ static void wifi_init_sta(void)
         ESP_LOGI(TAG_CAR, "wifi connected.");
         
         initialize_sntp();
+    }
+    else if(bits & WIFI_FAIL_BIT)
+    {
+        ESP_LOGI(TAG_CAR, "wifi connect fail tested by car.");
     }
     //vEventGroupDelete(s_wifi_event_group);
 }
@@ -936,9 +941,9 @@ static void initialize_sntp(void)
     ESP_LOGI(TAG_CAR, "sntp task start.");
     
     
-    mqtt_app_start();
+    //mqtt_app_start();
     xTaskCreate(sntp_get_time_task, "sntp_get_time_task", 4096, NULL, 2, &xHandle_sntp);
-    xTaskCreate(tcp_client_task, "tcp_client_task", 4096, NULL, 0, &xHandle_tcp);   //优先级改成0就可以和蓝牙兼容了
+    //xTaskCreate(tcp_client_task, "tcp_client_task", 4096, NULL, 0, &xHandle_tcp);   //优先级改成0就可以和蓝牙兼容了
     xTaskCreatePinnedToCore(led_strip_task, "led_strip_task", 4096, NULL, 4, NULL, 1);
     //xTaskCreate(led_strip_task, "led_strip_task", 4096, NULL, 4, NULL);
     xTaskCreate(bt_mp3_task, "bt_mp3_task", 4096, NULL, 3, NULL);
